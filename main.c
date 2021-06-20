@@ -275,6 +275,7 @@ void gameStart(){
         printBoard();
         printf("Combo Count : %d\n", comboCount);
         printf("Score : %d\n", score);
+        printf("MoveCount : %d\n", moveCount);
         input = getch();
         //printf("%c\n",input);
 
@@ -283,8 +284,10 @@ void gameStart(){
             case 'W':
                 //printf("up 드가자\n");
                 tmp1 = slideUp();
-                if(tmp1)
+                if(tmp1) {
                     makeRandNum();
+                    moveCount++;
+                }
                 else
                     comboStat = 0;
                 if(tmp1 == 1) comboStat = 0;
@@ -298,8 +301,10 @@ void gameStart(){
             case 'S':
                 //printf("down 드가자\n");
                 tmp1 = slideDown();
-                if(tmp1)
+                if(tmp1) {
                     makeRandNum();
+                    moveCount++;
+                }
                 else
                     comboStat = 0;
                 if(tmp1 == 1) comboStat = 0;
@@ -313,8 +318,10 @@ void gameStart(){
             case 'D':
                 //printf("right 드가자\n");
                 tmp1 = slideRight();
-                if(tmp1)
+                if(tmp1) {
                     makeRandNum();
+                    moveCount++;
+                }
                 else
                     comboStat = 0;
                 if(tmp1 == 1) comboStat = 0;
@@ -328,8 +335,10 @@ void gameStart(){
             case 'A':
                 //printf("left 드가자\n");
                 tmp1 = slideLeft();
-                if(tmp1)
+                if(tmp1) {
                     makeRandNum();
+                    moveCount++;
+                }
                 else
                     comboStat = 0;
                 if(tmp1 == 1) comboStat = 0;
@@ -354,7 +363,8 @@ void gameStart(){
             for(int j = 0; j < 5; ++j){
                 if(board[i][j] == 2048) {
                     printf("Clear!\n");
-
+                    isSuccess = 1;
+                    //TODO
                     break;
                 }
             }
