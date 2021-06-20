@@ -246,6 +246,9 @@ void gameStart(){
     int isSuccess = 0; //0 if fail, 1 if success;
     int moveCount = 0;
     int comboCount = 0;
+    char gamerName[100];
+
+    FILE * fp = fopen("gamerInfo.txt", "w+");
 
     ///gameInit
     score = 0;
@@ -253,20 +256,20 @@ void gameStart(){
     int tmp1;
     int comboStat = 0;
 
-    boardInit();
-    int i = rand() % 5;
-    int j = rand() % 5;
-    tmp1 = rand() % 2 + 1;
-    int tmpi = i, tmpj = j;
-    board[i][j] = tmp1 * 2;
-
-    do {
-        i = rand() % 5;
-        j = rand() % 5;
-        //printf("%d %d || %d %d\n", tmpi, tmpj, i, j); //중복인 지점 확인
-    } while(tmpi == i && tmpj == j);
-    tmp1 = rand() % 2 + 1;
-    board[i][j] = tmp1 * 2;
+//    boardInit();
+//    int i = rand() % 5;
+//    int j = rand() % 5;
+//    tmp1 = rand() % 2 + 1;
+//    int tmpi = i, tmpj = j;
+//    board[i][j] = tmp1 * 2;
+//
+//    do {
+//        i = rand() % 5;
+//        j = rand() % 5;
+//        //printf("%d %d || %d %d\n", tmpi, tmpj, i, j); //중복인 지점 확인
+//    } while(tmpi == i && tmpj == j);
+//    tmp1 = rand() % 2 + 1;
+//    board[i][j] = tmp1 * 2;
     ///
 
     ///loop game
@@ -349,6 +352,7 @@ void gameStart(){
                 }
                 break;
             default:
+                system("clear");
                 continue;
         }
         ////Break Condition
@@ -364,7 +368,6 @@ void gameStart(){
                 if(board[i][j] == 2048) {
                     printf("Clear!\n");
                     isSuccess = 1;
-                    //TODO
                     break;
                 }
             }
@@ -373,6 +376,11 @@ void gameStart(){
         system("clear");
     }
     ////
+    ////저장
+    printf("UserName >> ");
+    scanf("%s", gamerName);
+    fprintf(fp, "%s %d %d %d\n", gamerName, isSuccess, moveCount, comboCount);
+    //// 이름, 성공여부, 이동횟수, 콤보 카운트 , (시간)
 
 }
 
