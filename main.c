@@ -4,6 +4,9 @@
 #include <unistd.h>
 #include <time.h>
 
+#define MAX_TIME 30
+
+
 int board[5][5] = {
         {2, 8,  2,  4,  0},
         {8, 16, 32, 64, 128},
@@ -13,6 +16,31 @@ int board[5][5] = {
 };      //게임 판  ////(GameOver Testcase)
 
 int score = 0;
+
+static struct termios initial_settings, new_settings;
+
+static int peek_character = -1;
+
+int _kbhit()
+{
+    unsigned char ch;
+    int nread;
+
+    if (peek_character != -1) return 1;
+    new_settings.c_cc[VMIN]=0;
+    tcsetattr(0, TCSANOW, &new_settings);
+    nread = read(0,&ch,1);
+    new_settings.c_cc[VMIN]=1;
+    tcsetattr(0, TCSANOW, &new_settings);
+    if(nread == 1)
+    {
+        peek_character = ch;
+        return 1;
+    }
+    return 0;
+}   //키보드 입력이 들어왔는지 확인
+
+
 
 int getch(void)
 {
@@ -231,6 +259,23 @@ int slideLeft(){
     return stat;
 }
 
+void init_keyboard()
+{
+    tcgetattr(0,&initial_settings);
+    new_settings = initial_settings;
+    new_settings.c_lflag &= ~ICANON;
+    new_settings.c_lflag &= ~ECHO;
+    new_settings.c_cc[VMIN] = 1;
+    new_settings.c_cc[VTIME] = 0;
+    tcsetattr(0, TCSANOW, &new_settings);
+}
+void close_keyboard()
+{
+    tcsetattr(0, TCSANOW, &initial_settings);
+}
+
+int readch() { char ch; if(peek_character != -1) { ch = peek_character; peek_character = -1; return ch; } read(0,&ch,1); return ch; }
+
 void makeRandNum(){
     int i, j, k;
     do{
@@ -251,7 +296,7 @@ void gameStart(){
     time_t playT;
     time_t endT;
 
-    FILE * fp = fopen("gamerInfo.txt", "w+");
+    FILE * fp = fopen("gamerInfo.txt", "a+");
 
     ///gameInit
     score = 0;
@@ -274,7 +319,7 @@ void gameStart(){
     tmp1 = rand() % 2 + 1;
     board[i][j] = tmp1 * 2;
     ///
-
+    init_keyboard();
     ///loop game
     while(1){
         fflush(stdin);
@@ -284,89 +329,91 @@ void gameStart(){
         printf("MoveCount : %d\n", moveCount);
 
         ////시간
+        printf("제한 시간 : %d분\n", MAX_TIME);
         playT = time(NULL);
         printf("지난 시간 : %d분 %d초\n", (int)((playT-startT) / 60 ),(int)((playT-startT)%60));
+        if((int)((playT-startT) / 60 ) >= MAX_TIME){
+            printf("Time OVER!\n");
+            break;
+        }
 
-        input = getch();
-        //printf("%c\n",input);
+        if(_kbhit()) {
+            input = readch();
+            //printf("%c\n",input);
 
-        switch (input) {
-            case 'w':
-            case 'W':
-                //printf("up 드가자\n");
-                tmp1 = slideUp();
-                if(tmp1) {
-                    makeRandNum();
-                    moveCount++;
-                }
-                else
-                    comboStat = 0;
-                if(tmp1 == 1) comboStat = 0;
-                if(tmp1 == 2){
-                    if(comboStat == 1)
-                        comboCount ++;
-                    comboStat = 1;
-                }
-                break;
-            case 's':
-            case 'S':
-                //printf("down 드가자\n");
-                tmp1 = slideDown();
-                if(tmp1) {
-                    makeRandNum();
-                    moveCount++;
-                }
-                else
-                    comboStat = 0;
-                if(tmp1 == 1) comboStat = 0;
-                if(tmp1 == 2){
-                    if(comboStat == 1)
-                        comboCount ++;
-                    comboStat = 1;
-                }
-                break;
-            case 'd':
-            case 'D':
-                //printf("right 드가자\n");
-                tmp1 = slideRight();
-                if(tmp1) {
-                    makeRandNum();
-                    moveCount++;
-                }
-                else
-                    comboStat = 0;
-                if(tmp1 == 1) comboStat = 0;
-                if(tmp1 == 2){
-                    if(comboStat == 1)
-                        comboCount ++;
-                    comboStat = 1;
-                }
-                break;
-            case 'a':
-            case 'A':
-                //printf("left 드가자\n");
-                tmp1 = slideLeft();
-                if(tmp1) {
-                    makeRandNum();
-                    moveCount++;
-                }
-                else
-                    comboStat = 0;
-                if(tmp1 == 1) comboStat = 0;
-                if(tmp1 == 2){
-                    if(comboStat == 1)
-                        comboCount ++;
-                    comboStat = 1;
-                }
-                break;
-            default:
-                system("clear");
-                continue;
+            switch (input) {
+                case 'w':
+                case 'W':
+                    //printf("up 드가자\n");
+                    tmp1 = slideUp();
+                    if (tmp1) {
+                        makeRandNum();
+                        moveCount++;
+                    } else
+                        comboStat = 0;
+                    if (tmp1 == 1) comboStat = 0;
+                    if (tmp1 == 2) {
+                        if (comboStat == 1)
+                            comboCount++;
+                        comboStat = 1;
+                    }
+                    break;
+                case 's':
+                case 'S':
+                    //printf("down 드가자\n");
+                    tmp1 = slideDown();
+                    if (tmp1) {
+                        makeRandNum();
+                        moveCount++;
+                    } else
+                        comboStat = 0;
+                    if (tmp1 == 1) comboStat = 0;
+                    if (tmp1 == 2) {
+                        if (comboStat == 1)
+                            comboCount++;
+                        comboStat = 1;
+                    }
+                    break;
+                case 'd':
+                case 'D':
+                    //printf("right 드가자\n");
+                    tmp1 = slideRight();
+                    if (tmp1) {
+                        makeRandNum();
+                        moveCount++;
+                    } else
+                        comboStat = 0;
+                    if (tmp1 == 1) comboStat = 0;
+                    if (tmp1 == 2) {
+                        if (comboStat == 1)
+                            comboCount++;
+                        comboStat = 1;
+                    }
+                    break;
+                case 'a':
+                case 'A':
+                    //printf("left 드가자\n");
+                    tmp1 = slideLeft();
+                    if (tmp1) {
+                        makeRandNum();
+                        moveCount++;
+                    } else
+                        comboStat = 0;
+                    if (tmp1 == 1) comboStat = 0;
+                    if (tmp1 == 2) {
+                        if (comboStat == 1)
+                            comboCount++;
+                        comboStat = 1;
+                    }
+                    break;
+                default:
+                    system("clear");
+                    continue;
+            }
         }
         ////Break Condition
         if(ifGameOver()){
             printBoard();
-            endT = time(NULL);
             printf("GameOver!\n");
             break;
         }
@@ -377,18 +424,24 @@ void gameStart(){
                 if(board[i][j] == 2048) {
                     printf("Clear!\n");
                     isSuccess = 1;
-                    endT = time(NULL);
+
                     break;
                 }
             }
         }
         ////
+        usleep(10000);
         system("clear");
     }
+    close_keyboard();
     ////
     ////저장
+
+    endT = time(NULL);
     printf("UserName >> ");
     scanf("%s", gamerName);
+    printf("%ld\n", endT);
+    printf("%ld\n", startT);
     fprintf(fp, "%s %d %d %d %ld\n", gamerName, isSuccess, moveCount, comboCount, endT-startT);
     //// 이름, 성공여부, 이동횟수, 콤보 카운트 , (시간)
 

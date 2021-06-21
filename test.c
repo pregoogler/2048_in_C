@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <time.h>
+#include <conio.h>
 
 int main(void){
 	time_t t = time(NULL);
