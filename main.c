@@ -10,7 +10,7 @@ int board[5][5] = {
         {16, 32,  64,  128,  256},
         {32, 64,  128,  256,  512},
         {64, 128,  256,  512,  1024}
-};      //게임 판
+};      //게임 판  ////(GameOver Testcase)
 
 int score = 0;
 
@@ -247,6 +247,9 @@ void gameStart(){
     int moveCount = 0;
     int comboCount = 0;
     char gamerName[100];
+    const time_t startT = time(NULL);
+    time_t playT;
+    time_t endT;
 
     FILE * fp = fopen("gamerInfo.txt", "w+");
 
@@ -256,20 +259,20 @@ void gameStart(){
     int tmp1;
     int comboStat = 0;
 
-//    boardInit();
-//    int i = rand() % 5;
-//    int j = rand() % 5;
-//    tmp1 = rand() % 2 + 1;
-//    int tmpi = i, tmpj = j;
-//    board[i][j] = tmp1 * 2;
-//
-//    do {
-//        i = rand() % 5;
-//        j = rand() % 5;
-//        //printf("%d %d || %d %d\n", tmpi, tmpj, i, j); //중복인 지점 확인
-//    } while(tmpi == i && tmpj == j);
-//    tmp1 = rand() % 2 + 1;
-//    board[i][j] = tmp1 * 2;
+    boardInit();
+    int i = rand() % 5;
+    int j = rand() % 5;
+    tmp1 = rand() % 2 + 1;
+    int tmpi = i, tmpj = j;
+    board[i][j] = tmp1 * 2;
+
+    do {
+        i = rand() % 5;
+        j = rand() % 5;
+        //printf("%d %d || %d %d\n", tmpi, tmpj, i, j); //중복인 지점 확인
+    } while(tmpi == i && tmpj == j);
+    tmp1 = rand() % 2 + 1;
+    board[i][j] = tmp1 * 2;
     ///
 
     ///loop game
@@ -279,6 +282,11 @@ void gameStart(){
         printf("Combo Count : %d\n", comboCount);
         printf("Score : %d\n", score);
         printf("MoveCount : %d\n", moveCount);
+
+        ////시간
+        playT = time(NULL);
+        printf("지난 시간 : %d분 %d초\n", (int)((playT-startT) / 60 ),(int)((playT-startT)%60));
+
         input = getch();
         //printf("%c\n",input);
 
@@ -358,6 +366,7 @@ void gameStart(){
         ////Break Condition
         if(ifGameOver()){
             printBoard();
+            endT = time(NULL);
             printf("GameOver!\n");
             break;
         }
@@ -368,6 +377,7 @@ void gameStart(){
                 if(board[i][j] == 2048) {
                     printf("Clear!\n");
                     isSuccess = 1;
+                    endT = time(NULL);
                     break;
                 }
             }
@@ -379,7 +389,7 @@ void gameStart(){
     ////저장
     printf("UserName >> ");
     scanf("%s", gamerName);
-    fprintf(fp, "%s %d %d %d\n", gamerName, isSuccess, moveCount, comboCount);
+    fprintf(fp, "%s %d %d %d %ld\n", gamerName, isSuccess, moveCount, comboCount, endT-startT);
     //// 이름, 성공여부, 이동횟수, 콤보 카운트 , (시간)
 
 }
