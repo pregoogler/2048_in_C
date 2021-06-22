@@ -1,12 +1,14 @@
 #include <stdio.h>
 #include <time.h>
-#include <conio.h>
 
+typedef struct GAMER{
+    char name[20];
+    int isSuccess;
+    int moveCount;
+    int comboCount;
+    int time;
+} gamer;
 int main(void){
-	time_t t = time(NULL);
-	while(1){
-	
-	printf("%ld\n", t);
-	}
+	printf("%d", sizeof(gamer));
 	return 0;
 }

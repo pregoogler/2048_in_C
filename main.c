@@ -478,6 +478,73 @@ void printHowTo(){
     }
 }
 
+int getTotalLine(char *name){
+    FILE *fp;
+    int line=0;
+    char c;
+    fp=fopen(name,"r");
+    while((c=fgetc(fp))!=EOF)
+        if(c=='\n') line++;
+    fclose(fp);
+    return(line);
+}
+
+typedef struct GAMER{
+    char name[20];
+    int isSuccess;
+    int moveCount;
+    int comboCount;
+    int time;
+} gamer; ////이름, 성공여부, 이동횟수, 콤보 카운트 , (시간)
+
+void ranking(){
+    FILE * fp = fopen("gamerInfo.txt", "r");
+    int line = getTotalLine("gamerInfo.txt"), k;
+    gamer * gp = (gamer *)malloc(sizeof(gamer) * line);
+    gamer tmp = {0,};
+//    printf("line : %d\n", line);
+    for(int i = 0; i < line; ++i){
+        fscanf(fp, "%s %d %d %d %d", gp[i].name, &gp[i].isSuccess, &gp[i].moveCount, &gp[i].comboCount, &gp[i].time);
+    }
+//    for(int i = 0; i < line; ++i){
+//        printf("%s\n", gp[i].name);
+//    }
+//    printf("----\n");
+    for(int i = 0; i < line; ++i){
+        for(int j = 0; j < line-i-1; ++j){
+            if(gp[j].time > gp[j+1].time){
+                tmp = gp[j+1];
+                gp[j+1] = gp[j];
+                gp[j] = tmp;
+            }
+        }
+    }
+//    for(int i = 0; i < line; ++i){
+//        printf("%s\n", gp[i].name);
+//    }
+    while(1) {
+        printf("-----------------------\n클리어 시간에 따른 랭킹(성공한 사람)\n-----------------------\n");
+        int rank = 1;
+        for (int i = 0; i < line; ++i) {
+            if (gp[i].isSuccess) {
+                printf("%d등 : %s - %d분 %d초\n", rank++, gp[i].name, (int) (gp[i].time / 60), gp[i].time % 60);
+            }
+        }
+        printf("\n#그만 보려면 0 입력");
+        printf("\n>>");
+        k = getch();
+
+        if(k == '0') {
+            system("clear");
+            return;
+        }
+        else{
+            system("clear");
+            continue;
+        }
+    }
+}
+
 int main() {
     int input = 0;
     srand(time(NULL));
@@ -494,7 +561,8 @@ int main() {
                 printHowTo();
                 break;
             case 3:
-
+                system("clear");
+                ranking();
                 break;
             case 4:
                 printf("게임을 종료합니다.\n");
