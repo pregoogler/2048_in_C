@@ -6,7 +6,6 @@
 
 #define MAX_TIME 30
 
-
 int board[5][5] = {
         {2, 8,  2,  4,  0},
         {8, 16, 32, 64, 128},
@@ -14,12 +13,16 @@ int board[5][5] = {
         {32, 64,  128,  256,  512},
         {64, 128,  256,  512,  1024}
 };      //게임 판  ////(GameOver Testcase)
-
 int score = 0;
-
 static struct termios initial_settings, new_settings;
-
 static int peek_character = -1;
+typedef struct GAMER{
+    char name[20];
+    int isSuccess;
+    int moveCount;
+    int comboCount;
+    int time;
+} gamer; ////이름, 성공여부, 이동횟수, 콤보 카운트 , (시간)
 
 int _kbhit()
 {
@@ -39,9 +42,6 @@ int _kbhit()
     }
     return 0;
 }   //키보드 입력이 들어왔는지 확인
-
-
-
 int getch(void)
 {
     struct termios oldt, newt;
@@ -54,7 +54,6 @@ int getch(void)
     tcsetattr( STDIN_FILENO, TCSANOW, &oldt );
     return ch;
 }   //맥에서 getch 사용할 수 있도록
-
 void printMenu(){
     for(int i = 0;i < 25; ++i){
         printf("-");
@@ -69,7 +68,6 @@ void printMenu(){
     }
     printf("\n>> ");
 }   //메뉴 출력
-
 void printBoard(){
     for(int i = 0; i < 5; ++i){
         for(int j = 0; j < 5; ++j){
@@ -85,7 +83,6 @@ void boardInit(){
         }
     }
 }   //게임판 초기화
-
 int ifGameOver(){
     for(int i = 0; i < 5; ++i){
         for(int j = 0; j < 4; ++j){
@@ -273,8 +270,8 @@ void close_keyboard()
 {
     tcsetattr(0, TCSANOW, &initial_settings);
 }
-
-int readch() { char ch; if(peek_character != -1) { ch = peek_character; peek_character = -1; return ch; } read(0,&ch,1); return ch; }
+int readch()
+{ char ch; if(peek_character != -1) { ch = peek_character; peek_character = -1; return ch; } read(0,&ch,1); return ch; }
 
 void makeRandNum(){
     int i, j, k;
@@ -284,6 +281,16 @@ void makeRandNum(){
         k = rand() % 2 + 1;
     } while(board[i][j] != 0);
     board[i][j] = k * 2;
+}
+int getTotalLine(char *name){
+    FILE *fp;
+    int line=0;
+    char c;
+    fp=fopen(name,"r");
+    while((c=fgetc(fp))!=EOF)
+        if(c=='\n') line++;
+    fclose(fp);
+    return(line);
 }
 
 void gameStart(){
@@ -446,7 +453,6 @@ void gameStart(){
     //// 이름, 성공여부, 이동횟수, 콤보 카운트 , (시간)
 
 }
-
 void printHowTo(){
     int k;
     while(1){
@@ -477,26 +483,6 @@ void printHowTo(){
         }
     }
 }
-
-int getTotalLine(char *name){
-    FILE *fp;
-    int line=0;
-    char c;
-    fp=fopen(name,"r");
-    while((c=fgetc(fp))!=EOF)
-        if(c=='\n') line++;
-    fclose(fp);
-    return(line);
-}
-
-typedef struct GAMER{
-    char name[20];
-    int isSuccess;
-    int moveCount;
-    int comboCount;
-    int time;
-} gamer; ////이름, 성공여부, 이동횟수, 콤보 카운트 , (시간)
-
 void ranking(){
     FILE * fp = fopen("gamerInfo.txt", "r");
     int line = getTotalLine("gamerInfo.txt"), k;
